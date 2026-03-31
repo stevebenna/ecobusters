@@ -1,0 +1,287 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { readdir } from 'node:fs/promises';
+import { join } from 'node:path';
+
+// ── Dynamic event images ──────────────────────────────────────────────────────
+// Reads public/assets/events/ at build time.
+// Expected naming: event-1.jpg, event-2.png, etc. (any image extension)
+// If you add metadata (optional), put it in public/assets/events/meta.json
+
+const IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif']);
+
+let eventImages: string[] = [];
+try {
+  const eventsDir = join(process.cwd(), 'public', 'assets', 'events');
+  const files = await readdir(eventsDir);
+  eventImages = files
+    .filter(f => {
+      const ext = f.slice(f.lastIndexOf('.')).toLowerCase();
+      return IMAGE_EXTS.has(ext) && !f.startsWith('.');
+    })
+    .sort();
+} catch {
+  // No events folder or no images – show placeholder cards
+}
+
+// ── Optional metadata from meta.json ─────────────────────────────────────────
+// Format: { "evento-1.jpg": { "title": "...", "desc": "..." }, ... }
+type MetaEntry = { title: string; desc: string };
+type MetaMap = Record<string, MetaEntry>;
+let meta: MetaMap = {};
+try {
+  const metaPath = join(process.cwd(), 'public', 'assets', 'events', 'meta.json');
+  const { readFile } = await import('node:fs/promises');
+  meta = JSON.parse(await readFile(metaPath, 'utf-8'));
+} catch { /* meta.json is optional */ }
+
+// Build event data list
+interface EventItem { src: string; title: string; desc: string; }
+const PLACEHOLDER_EVENTS: EventItem[] = Array.from({ length: 6 }, (_, i) => ({
+  src: '',
+  title: `Evento ${i + 1}`,
+  desc: 'Descrizione breve dell\'evento in corso o passato. Scopri cosa abbiamo fatto insieme.',
+}));
+
+const events: EventItem[] = eventImages.length > 0
+  ? eventImages.map((filename, i) => {
+      const m = meta[filename];
+      return {
+        src: `/assets/events/${filename}`,
+        title: m?.title ?? `Evento ${i + 1}`,
+        desc: m?.desc ?? 'Descrizione breve dell\'evento. Aggiungi dettagli in meta.json.',
+      };
+    })
+  : PLACEHOLDER_EVENTS;
+
+// ── Contact icons ─────────────────────────────────────────────────────────────
+type ContactDef = { filename: string; label: string; href: string };
+const CONTACTS: ContactDef[] = [
+  { filename: 'instagram.svg', label: 'Carpi',      href: 'https://instagram.com/ecobusters_odv' },
+  { filename: 'instagram.svg', label: 'Mirandola',  href: 'https://instagram.com/ecobusters_mirandola' },
+  { filename: 'telegram.svg',  label: 'Carpi',   href: 'https://t.me/ecobusters' },
+  { filename: 'telegram.svg',  label: 'Mirandola',   href: 'https://t.me/ecobusters' },
+];
+
+// Check which contact icons actually exist
+let availableContacts: ContactDef[] = [];
+try {
+  const contactsDir = join(process.cwd(), 'public', 'assets', 'contacts');
+  const files = new Set(await readdir(contactsDir));
+  availableContacts = CONTACTS.filter(c => files.has(c.filename));
+} catch { /* no contacts folder */ }
+
+// If no icon files found, show placeholders with SVG icons
+const usePlaceholderContacts = availableContacts.length === 0;
+---
+
+<Layout>
+  <!-- ── HERO ────────────────────────────────────────────────────────────────── -->
+  <div class="hero">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <img src="/assets/logo.png" alt="Ecobusters" class="hero-logo" />
+    <h1>Ecobusters</h1>
+    <p>Volontari per un ambiente più pulito, una comunità più forte, un futuro più verde.</p>
+    <a href="#chi-siamo" class="btn-primary">Scopri di più</a>
+  </div>
+
+  <!-- ── CHI SIAMO ──────────────────────────────────────────────────────────── -->
+  <div class="band">
+    <section id="chi-siamo">
+      <div class="chi-siamo-text">
+        <span class="section-label">Chi siamo</span>
+        <h2 class="section-title">Volontari con<br/>il cuore verde</h2>
+        <div class="section-divider"></div>
+        <p>
+          Ecobusters è un'organizzazione di volontariato nata dalla passione di un gruppo di
+          persone convinte che prendersi cura del territorio sia un atto d'amore verso la
+          propria comunità. Ogni anno organizziamo decine di eventi di pulizia, sensibilizzazione
+          e riqualificazione ambientale su tutto il territorio.
+        </p>
+        <p>
+          Crediamo che il cambiamento parta da piccoli gesti quotidiani: raccogliere un rifiuto,
+          piantare un albero, sensibilizzare un vicino. Insieme, questi gesti diventano una forza
+          capace di trasformare il paesaggio — e le persone.
+        </p>
+        <p>
+          Siamo aperti a chiunque voglia contribuire: singoli, famiglie, scuole, aziende.
+          Non servono competenze particolari, solo buona volontà e voglia di fare.
+        </p>
+      </div>
+      <div class="values-grid">
+        <img src="/assets/background.jpg" alt="Background" class="values-image" />
+      </div>
+    </section>
+  </div>
+
+  <!-- ── EVENTI ─────────────────────────────────────────────────────────────── -->
+  <div class="band-green">
+    <section id="eventi">
+      <div class="eventi-header">
+        <span class="section-label">I nostri eventi</span>
+        <h2 class="section-title">Dove siamo stati,<br/>dove andiamo</h2>
+        <div class="section-divider"></div>
+      </div>
+
+      {events.length > 0 && (
+        <div class="gallery-wrapper" id="galleryWrapper">
+          <div class="gallery-track" id="galleryTrack">
+            {events.map((ev) => (
+              <div class="event-card">
+                {ev.src ? (
+                  <img src={ev.src} alt={ev.title} loading="lazy" />
+                ) : (
+                  <div class="event-placeholder-img" aria-hidden="true"></div>
+                )}
+                <div class="event-info">
+                  <h3>{ev.title}</h3>
+                  <p>{ev.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="gallery-controls">
+          <button class="gallery-btn" id="prevBtn" aria-label="Precedente">&#8592;</button>
+          <div class="gallery-dots" id="galleryDots">
+            {Array.from({ length: Math.ceil(events.length / 3) }).map((_, i) => (
+              <button class:list={['dot', i === 0 ? 'active' : '']} data-index={i} aria-label={`Vai alla pagina ${i + 1}`}></button>
+            ))}
+          </div>
+          <button class="gallery-btn" id="nextBtn" aria-label="Successivo">&#8594;</button>
+        </div>
+      )}
+    </section>
+  </div>
+
+  <!-- ── COLLABORA ──────────────────────────────────────────────────────────── -->
+  <div class="band">
+    <section id="collabora">
+      <span class="section-label">Collabora</span>
+      <h2 class="section-title" style="text-align:center">Unisciti a noi</h2>
+      <div class="section-divider" style="margin:0 auto 2.5rem"></div>
+      <div class="collabora-inner">
+        <p>
+          Che tu voglia venire a un evento, proporre una collaborazione o semplicemente
+          saperne di più, siamo felici di sentirti. Scrivici, seguici sui social o
+          vieni a trovarci: ogni nuovo volontario è una risorsa preziosa per la nostra comunità.
+        </p>
+        <a href="mailto:ecobusters.odv@gmail.com" class="btn-primary">Scrivici</a>
+
+        {availableContacts.length > 0 &&
+          <div class="contact-icons">
+            {availableContacts.map(c => (
+              <a href={c.href} class="contact-link" target="_blank" rel="noopener">
+                <img src={`/assets/contacts/${c.filename}`} alt={c.label} />
+                {c.label}
+              </a>
+            ))}
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .chi-siamo-text ~ .values-grid {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .values-image {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  .event-placeholder-img {
+    width: 100%;
+    height: 220px;
+    background: linear-gradient(135deg, #e0d8c8 0%, #c8dab0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .event-placeholder-img::after {
+    content: '🌿';
+    font-size: 3rem;
+    opacity: 0.5;
+  }
+</style>
+
+<script define:vars={{ totalEvents: events.length }}>
+  // ── Gallery carousel ────────────────────────────────────────────────────────
+  const track = document.getElementById('galleryTrack');
+  const wrapper = document.getElementById('galleryWrapper');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const dots = document.querySelectorAll('.dot');
+
+  if (!track || !wrapper) throw new Error('Gallery elements missing');
+
+  let current = 0;
+
+  function getPerPage() {
+    const w = window.innerWidth;
+    if (w < 640)  return 1;
+    if (w < 1000) return 2;
+    return 3;
+  }
+
+  function totalPages() {
+    return Math.ceil(totalEvents / getPerPage());
+  }
+
+  function getCardWidth() {
+    const cards = track.querySelectorAll('.event-card');
+    if (!cards.length) return 0;
+    const style = window.getComputedStyle(track);
+    const gap = parseFloat(style.gap) || 24;
+    const pp = getPerPage();
+    return (wrapper.offsetWidth - gap * (pp - 1)) / pp;
+  }
+
+  function updateDots() {
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+
+  function goTo(index) {
+    const pp = getPerPage();
+    const gap = 24;
+    const cardW = getCardWidth();
+    const offset = index * pp * (cardW + gap);
+    track.style.transform = `translateX(-${offset}px)`;
+    current = index;
+    updateDots();
+  }
+
+  prevBtn?.addEventListener('click', () => {
+    goTo(current > 0 ? current - 1 : totalPages() - 1);
+  });
+  nextBtn?.addEventListener('click', () => {
+    goTo(current < totalPages() - 1 ? current + 1 : 0);
+  });
+  dots.forEach(d => {
+    d.addEventListener('click', () => goTo(Number((d).dataset.index)));
+  });
+
+  // Responsive reflow
+  window.addEventListener('resize', () => goTo(0));
+
+  // Touch swipe
+  let touchStartX = 0;
+  track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) {
+      dx < 0
+        ? goTo(current < totalPages() - 1 ? current + 1 : 0)
+        : goTo(current > 0 ? current - 1 : totalPages() - 1);
+    }
+  });
+</script>
