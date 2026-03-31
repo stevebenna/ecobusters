@@ -47,7 +47,7 @@ const events: EventItem[] = eventImages.length > 0
   ? eventImages.map((filename, i) => {
       const m = meta[filename];
       return {
-        src: `/assets/events/${filename}`,
+        src: `ecobusters/assets/events/${filename}`,
         title: m?.title ?? `Evento ${i + 1}`,
         desc: m?.desc ?? 'Descrizione breve dell\'evento. Aggiungi dettagli in meta.json.',
       };
@@ -174,7 +174,7 @@ const usePlaceholderContacts = availableContacts.length === 0;
           <div class="contact-icons">
             {availableContacts.map(c => (
               <a href={c.href} class="contact-link" target="_blank" rel="noopener">
-                <img src={`/assets/contacts/${c.filename}`} alt={c.label} />
+                <img src={`ecobusters/assets/contacts/${c.filename}`} alt={c.label} />
                 {c.label}
               </a>
             ))}
