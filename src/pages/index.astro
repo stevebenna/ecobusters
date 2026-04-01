@@ -4,9 +4,9 @@ import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
 // ── Dynamic event images ──────────────────────────────────────────────────────
-// Reads public/ecobusters/assetsevents/ at build time.
+// Reads public/ecobusters/assets/events/ at build time.
 // Expected naming: event-1.jpg, event-2.png, etc. (any image extension)
-// If you add metadata (optional), put it in public/ecobusters/assetsevents/meta.json
+// If you add metadata (optional), put it in public/ecobusters/assets/events/meta.json
 
 const IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif']);
 
@@ -47,7 +47,7 @@ const events: EventItem[] = eventImages.length > 0
   ? eventImages.map((filename, i) => {
       const m = meta[filename];
       return {
-        src: `ecobusters/assetsevents/${filename}`,
+        src: `ecobusters/assets/events/${filename}`,
         title: m?.title ?? `Evento ${i + 1}`,
         desc: m?.desc ?? 'Descrizione breve dell\'evento. Aggiungi dettagli in meta.json.',
       };
@@ -80,7 +80,7 @@ const usePlaceholderContacts = availableContacts.length === 0;
   <div class="hero">
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
-    <img src="ecobusters/assetslogo.png" alt="Ecobusters" class="hero-logo" />
+    <img src="ecobusters/assets/logo.png" alt="Ecobusters" class="hero-logo" />
     <h1>Ecobusters</h1>
     <p>Volontari per un ambiente più pulito, una comunità più forte, un futuro più verde.</p>
     <a href="#chi-siamo" class="btn-primary">Scopri di più</a>
@@ -110,7 +110,7 @@ const usePlaceholderContacts = availableContacts.length === 0;
         </p>
       </div>
       <div class="values-grid">
-        <img src="ecobusters/assetsbackground.jpg" alt="Background" class="values-image" />
+        <img src="ecobusters/assets/background.jpg" alt="Background" class="values-image" />
       </div>
     </section>
   </div>
@@ -174,7 +174,7 @@ const usePlaceholderContacts = availableContacts.length === 0;
           <div class="contact-icons">
             {availableContacts.map(c => (
               <a href={c.href} class="contact-link" target="_blank" rel="noopener">
-                <img src={`ecobusters/assetscontacts/${c.filename}`} alt={c.label} />
+                <img src={`ecobusters/assets/contacts/${c.filename}`} alt={c.label} />
                 {c.label}
               </a>
             ))}
