@@ -73,9 +73,6 @@ try {
 
 // If no icon files found, show placeholders with SVG icons
 const usePlaceholderContacts = availableContacts.length === 0;
-
-// ── Helper to construct asset paths for both dev and prod ──────────────────
-const assetPath = (path: string) => `${import.meta.env.BASE_URL}assets/${path}`;
 ---
 
 <Layout>
@@ -83,7 +80,7 @@ const assetPath = (path: string) => `${import.meta.env.BASE_URL}assets/${path}`;
   <div class="hero">
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
-    <img src={assetPath("logo.png")} alt="Ecobusters" class="hero-logo" />
+    <img src={`${import.meta.env.BASE_URL}assets/logo.png`} alt="Ecobusters" class="hero-logo" />
     <h1>Ecobusters</h1>
     <p>Volontari per un ambiente più pulito, una comunità più forte, un futuro più verde.</p>
     <a href="#chi-siamo" class="btn-primary">Scopri di più</a>
@@ -113,7 +110,7 @@ const assetPath = (path: string) => `${import.meta.env.BASE_URL}assets/${path}`;
         </p>
       </div>
       <div class="values-grid">
-        <img src={assetPath("background.jpg")} alt="Background" class="values-image" />
+        <img src={`${import.meta.env.BASE_URL}assets/background.jpg`} alt="Background" class="values-image" />
       </div>
     </section>
   </div>
@@ -177,7 +174,7 @@ const assetPath = (path: string) => `${import.meta.env.BASE_URL}assets/${path}`;
           <div class="contact-icons">
             {availableContacts.map(c => (
               <a href={c.href} class="contact-link" target="_blank" rel="noopener">
-                <img src={assetPath(`contacts/${c.filename}`)} alt={c.label} />
+                <img src={`${import.meta.env.BASE_URL}assets/contacts/${c.filename}`} alt={c.label} />
                 {c.label}
               </a>
             ))}
