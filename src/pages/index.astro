@@ -47,7 +47,7 @@ const events: EventItem[] = eventImages.length > 0
   ? eventImages.map((filename, i) => {
       const m = meta[filename];
       return {
-        src: `ecobusters/assets/events/${filename}`,
+        src: `${import.meta.env.BASE_URL}assets/events/${filename}`,
         title: m?.title ?? `Evento ${i + 1}`,
         desc: m?.desc ?? 'Descrizione breve dell\'evento. Aggiungi dettagli in meta.json.',
       };
@@ -73,6 +73,9 @@ try {
 
 // If no icon files found, show placeholders with SVG icons
 const usePlaceholderContacts = availableContacts.length === 0;
+
+// ── Helper to construct asset paths for both dev and prod ──────────────────
+const assetPath = (path: string) => `${import.meta.env.BASE_URL}assets/${path}`;
 ---
 
 <Layout>
@@ -80,7 +83,7 @@ const usePlaceholderContacts = availableContacts.length === 0;
   <div class="hero">
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
-    <img src="ecobusters/assets/logo.png" alt="Ecobusters" class="hero-logo" />
+    <img src={assetPath("logo.png")} alt="Ecobusters" class="hero-logo" />
     <h1>Ecobusters</h1>
     <p>Volontari per un ambiente più pulito, una comunità più forte, un futuro più verde.</p>
     <a href="#chi-siamo" class="btn-primary">Scopri di più</a>
@@ -110,7 +113,7 @@ const usePlaceholderContacts = availableContacts.length === 0;
         </p>
       </div>
       <div class="values-grid">
-        <img src="ecobusters/assets/background.jpg" alt="Background" class="values-image" />
+        <img src={assetPath("background.jpg")} alt="Background" class="values-image" />
       </div>
     </section>
   </div>
@@ -174,7 +177,7 @@ const usePlaceholderContacts = availableContacts.length === 0;
           <div class="contact-icons">
             {availableContacts.map(c => (
               <a href={c.href} class="contact-link" target="_blank" rel="noopener">
-                <img src={`ecobusters/assets/contacts/${c.filename}`} alt={c.label} />
+                <img src={assetPath(`contacts/${c.filename}`)} alt={c.label} />
                 {c.label}
               </a>
             ))}

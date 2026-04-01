@@ -3,6 +3,9 @@ interface Props {
   title?: string;
 }
 const { title = "Ecobusters ODV" } = Astro.props;
+
+// Helper to construct asset paths for both dev and prod
+const assetPath = (path: string) => `${import.meta.env.BASE_URL}assets/${path}`;
 ---
 <!doctype html>
 <html lang="it">
@@ -506,7 +509,7 @@ const { title = "Ecobusters ODV" } = Astro.props;
   <body>
     <nav>
       <a href="#" class="nav-logo">
-        <img src="ecobusters/assets/logo.png" alt="Ecobusters Logo" />
+        <img src={assetPath("logo.png")} alt="Ecobusters Logo" />
         <span>Ecobusters</span>
       </a>
       <button class="hamburger" id="burger" aria-label="Menu">
